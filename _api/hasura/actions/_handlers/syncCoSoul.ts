@@ -13,15 +13,16 @@ import { insertInteractionEvents } from '../../../../api-lib/gql/mutations';
 import { getInput } from '../../../../api-lib/handlerHelpers';
 import { errorResponse } from '../../../../api-lib/HttpError';
 import {
+  backendReadOnlyClient,
+  setOnChainPGive,
+} from '../../../../api-lib/viem/contracts';
+import {
   getTokenId,
   PGIVE_SYNC_DURATION_DAYS,
-  setOnChainPGive,
 } from '../../../../src/features/cosoul/api/cosoul';
 import { getLocalPGIVE } from '../../../../src/features/cosoul/api/pgive';
 import { storeCoSoulImage } from '../../../../src/features/cosoul/art/screenshot';
 import { POINTS_PER_GIVE } from '../../../../src/features/points/getAvailablePoints';
-
-import { getInviter } from './redeemInviteCode';
 
 const EXTRA_GIVE_FOR_MINTING = 10;
 
@@ -36,16 +37,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { payload, session } = await getInput(req, syncInput);
 
     const address = session.hasuraAddress;
-    const tokenId = await getTokenId(address);
+    const tokenId = await getTokenId(address, backendReadOnlyClient());
 
     if (!tokenId) {
       // no tokenId on chain, lets clean up
       await burned(address, session.hasuraProfileId);
     } else {
-      await minted(address, payload.tx_hash, tokenId, session.hasuraProfileId);
+      await minted(
+        address,
+        payload.tx_hash,
+        Number(tokenId),
+        session.hasuraProfileId
+      );
     }
 
-    return res.status(200).json({ token_id: tokenId });
+    return res.status(200).json({ token_id: Number(tokenId) });
   } catch (e: any) {
     return errorResponse(res, e);
   }
@@ -98,7 +104,6 @@ export const minted = async (
     );
     profiles_by_pk = result.profiles_by_pk;
     assert(profiles_by_pk, 'failed to fetch inviter id');
-    inviter = await getInviter(profiles_by_pk.invited_by);
 
     // add more Give to the profile of the CoSoul
     await addGiveToProfile(profileId, EXTRA_GIVE_FOR_MINTING);
@@ -150,13 +155,19 @@ export const burned = async (address: string, profileId?: number) => {
   );
 
   const burnedCosoul = delete_cosouls?.returning.pop();
-  assert(burnedCosoul);
+  if (burnedCosoul) {
+    // eslint-disable-next-line no-console
+    console.log('burned cosoul token_id:', burnedCosoul.token_id);
 
-  await insertInteractionEvents({
-    event_type: 'cosoul_burned',
-    profile_id: profileId,
-    data: { token_id: burnedCosoul.token_id },
-  });
+    await insertInteractionEvents({
+      event_type: 'cosoul_burned',
+      profile_id: profileId,
+      data: { token_id: burnedCosoul.token_id },
+    });
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('no cosoul to burn, no-op');
+  }
 };
 
 async function syncPGive(address: string, tokenId: number) {

@@ -6,7 +6,6 @@ import address from '../_api/cosoul/[address]';
 import artTokenId from '../_api/cosoul/art/[artTokenId]';
 import tokenId from '../_api/cosoul/metadata/[tokenId]';
 import screenshot from '../_api/cosoul/screenshot/[tokenId]';
-import discord from '../_api/discord/oauth';
 import unsubscribeToken from '../_api/email/unsubscribe/[unsubscribeToken]';
 import verifyEmail from '../_api/email/verify/[uuid]';
 import verifyEmailWaitList from '../_api/email/verifywaitlist/[uuid]';
@@ -32,6 +31,7 @@ import generatePoapEmbeddings from '../_api/hasura/cron/generatePoapEmbeddings';
 import giveOnchainSyncer from '../_api/hasura/cron/giveOnchainSyncer';
 import hourlyReportEmail from '../_api/hasura/cron/hourlyReportEmail';
 import pGiveHistoricalGen from '../_api/hasura/cron/pGiveHistoricalGen';
+import syncCoSoulReputation from '../_api/hasura/cron/syncCoSoulReputation';
 import syncCoSouls from '../_api/hasura/cron/syncCoSouls';
 import updateMagicEmails from '../_api/hasura/cron/updateMagicEmails';
 import eventManager from '../_api/hasura/event_triggers/eventManager';
@@ -92,7 +92,6 @@ const tf = (handler: any) => (req: any, res: any) => {
   }
 };
 
-app.get('/api/discord/oauth', tf(discord));
 app.get('/api/hasura/auth', tf(auth));
 app.post('/api/hasura/actions/actionManager', tf(actionManager));
 app.post('/api/hasura/event_triggers/eventManager', tf(eventManager));
@@ -113,6 +112,7 @@ app.post(
 app.post('/api/hasura/cron/generatePoapEmbeddings', tf(generatePoapEmbeddings));
 app.post('/api/hasura/cron/pGiveHistoricalGen', tf(pGiveHistoricalGen));
 app.post('/api/hasura/cron/syncCoSouls', tf(syncCoSouls));
+app.post('/api/hasura/cron/syncCoSoulReputation', tf(syncCoSoulReputation));
 app.post(
   '/api/hasura/cron/colinksNotificationEmails',
   tf(colinksNotificationEmails)
@@ -239,4 +239,4 @@ app.listen(port, () => {
   /* eslint-enable */
 });
 
-export {};
+export { };

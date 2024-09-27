@@ -4,11 +4,11 @@ import {
   EvmTransaction,
   BoxActionResponse,
 } from '@decent.xyz/box-common';
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { AbstractConnector } from '@web3-react/abstract-connector';
-import { findConnectorName } from 'features/auth/connectors';
+import { sendTransaction, waitForTransactionReceipt } from '@wagmi/core';
+import { wagmiConfig } from 'features/wagmi/config';
 import { toast } from 'react-toastify';
 import { Address, zeroAddress } from 'viem';
+import { Connector } from 'wagmi';
 
 import { EConnectorNames } from 'config/constants';
 import { switchNetwork } from 'utils/provider';
@@ -50,14 +50,13 @@ export const confirmRoute = async ({
   setSubmitting?: (submitting: boolean) => void;
   setShowContinue?: (showContinue: boolean) => void;
   srcDisplay?: string;
-  connector?: AbstractConnector;
+  connector?: Connector;
 }) => {
   const toAddress = connectedAddress;
   setBoxActionArgs(undefined);
   if (chain !== srcChain) {
     if (defaultAvailableChains.includes(srcChain)) {
-      const connectorName = connector ? findConnectorName(connector) : '';
-      if (connectorName === EConnectorNames.Injected) {
+      if (connector?.type === EConnectorNames.Injected) {
         toast.warning('Please switch networks.', {
           position: toast.POSITION.BOTTOM_CENTER,
         });
@@ -68,7 +67,6 @@ export const confirmRoute = async ({
         });
       }
     }
-
     return;
   }
   if (continueDisabled) return;
@@ -113,13 +111,13 @@ export const executeTransaction = async ({
   actionResponse,
   setSubmitting,
   setShowContinue,
-  provider,
+  srcChain,
 }: {
   connectedAddress: Address | undefined;
   actionResponse: BoxActionResponse | undefined;
   setSubmitting?: (submitting: boolean) => void;
   setShowContinue?: (showContinue: boolean) => void;
-  provider: JsonRpcProvider;
+  srcChain: ChainId;
 }) => {
   if (!actionResponse) {
     toast.error('Failed to fetch routes', {
@@ -147,12 +145,15 @@ export const executeTransaction = async ({
             console.error('not approved!');
             return;
           }
-          await provider.waitForTransaction(approveHash as string);
+          await waitForTransactionReceipt(wagmiConfig, {
+            chainId: srcChain,
+            hash: approveHash,
+          });
         }
       }
 
       const tx = actionResponse.tx as EvmTransaction;
-      await provider.getSigner().sendTransaction(tx);
+      await sendTransaction(wagmiConfig, tx);
       setSubmitting?.(false);
     } catch (e: any) {
       if (e?.data?.message?.match(/insufficient funds/)) {

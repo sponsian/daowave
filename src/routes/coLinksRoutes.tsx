@@ -1,16 +1,14 @@
 import { Fragment } from 'react';
 
-import { Outlet, Route } from 'react-router-dom';
+import { RequireAuth } from 'features/rainbowkit/RequireAuth';
+import { Navigate, Outlet, Route } from 'react-router-dom';
 
-import { RequireWeb3Auth } from '../features/auth';
-import { RequireLoggedIn } from '../features/auth/RequireWeb3Auth';
 import { CoLinksProvider } from '../features/colinks/CoLinksContext';
 import { CoLinksLayout } from '../features/colinks/CoLinksLayout';
 import { CoLinksLoggedOutLayout } from '../features/colinks/CoLinksLoggedOutLayout';
 import { CoLinksSplashPage } from '../features/colinks/CoLinksSplashPage';
 import { CoLinksWizardLayout } from '../features/colinks/wizard/CoLinksWizardLayout';
 import CoLinksSplashLayout from '../features/cosoul/CoLinksSplashLayout';
-import GivePartyLayout from '../features/party/GivePartyLayout';
 import AccountPage from '../pages/AccountPage/AccountPage';
 import { ActivityPage } from '../pages/colinks/ActivityPage';
 import { AuthenticatePage } from '../pages/colinks/AuthenticatePage';
@@ -23,39 +21,38 @@ import { HoldingMostLinksPage } from '../pages/colinks/explore/HoldingMostLinksP
 import { MostLinksPage } from '../pages/colinks/explore/MostLinksPage';
 import { NewestMemberPage } from '../pages/colinks/explore/NewestMembersPage';
 import { ExplorePage } from '../pages/colinks/ExplorePage';
-import { GivePage } from '../pages/colinks/GivePage';
-import { GivePagesLayout } from '../pages/colinks/GivePagesLayout';
+import { GivePage } from '../pages/colinks/give/GivePage';
+import { GivePagesLayout } from '../pages/colinks/give/GivePagesLayout';
 import { HighlightsPage } from '../pages/colinks/HighlightsPage';
 import { InvitesPage } from '../pages/colinks/InvitesPage';
 import { LaunchPage } from '../pages/colinks/LaunchPage';
 import { LinkHistoryPage } from '../pages/colinks/LinkHistoryPage';
 import { LinkHoldersPage } from '../pages/colinks/LinkHoldersPage';
 import { LinkHoldingsPage } from '../pages/colinks/LinkHoldingsPage';
-import { NFTPage } from '../pages/colinks/NFTPage';
 import { NotFound } from '../pages/colinks/NotFound';
 import { NotificationsPage } from '../pages/colinks/NotificationsPage';
-import { RepScorePage } from '../pages/colinks/RepScorePage';
 import { SearchPage } from '../pages/colinks/SearchPage';
 import { TradesPage } from '../pages/colinks/TradesPage';
 import { VerifyEmailPage } from '../pages/colinks/VerifyEmailPage';
 import { VerifyWaitListEmailPage } from '../pages/colinks/VerifyWaitListEmailPage';
-import { ViewProfilePage } from '../pages/colinks/ViewProfilePage/ViewProfilePage';
 import { WizardPage } from '../pages/colinks/wizard/WizardPage';
 import { WizardStart } from '../pages/colinks/wizard/WizardStart';
 import CoSoulExplorePage from '../pages/CoSoulExplorePage/CoSoulExplorePage';
-import { GiveLeaderboard } from '../pages/GiveLeaderboard';
-import { GiveSkillLeaderboard } from '../pages/GiveSkillLeaderboard';
 import { GiveSkillMap } from '../pages/GiveSkillMap';
-import { GiveSkillPage } from '../pages/GiveSkillPage';
+import { GiveSkillPage, GiveSkillRedirect } from '../pages/GiveSkillPage';
 import { InviteCodePage } from '../pages/InviteCodePage';
 import { PostPage } from '../pages/PostPage';
+import {
+  GivePartyProfileRedirect,
+  ViewProfilePageGive,
+} from 'pages/colinks/CoLinksProfilePage/ProfilePageGive';
+import { ViewProfilePageNetwork } from 'pages/colinks/CoLinksProfilePage/ProfilePageNetwork';
+import { ViewProfilePagePosts } from 'pages/colinks/CoLinksProfilePage/ProfilePagePosts';
+import { ViewProfilePageReputation } from 'pages/colinks/CoLinksProfilePage/ProfilePageReputation';
+import { SkillGiveMap } from 'pages/colinks/CoLinksProfilePage/SkillGiveMap';
+import { ViewProfilePageGiveMap } from 'pages/colinks/CoLinksProfilePage/ViewProfilePageGiveMap';
 import { MostGivenPage } from 'pages/colinks/explore/MostGivenPage';
 import { MostGivePage } from 'pages/colinks/explore/MostGivePage';
-import { GiveMap } from 'pages/GiveMap';
-import { GiveParty } from 'pages/GiveParty';
-import { PartyProfile } from 'pages/GiveParty/PartyProfile';
-import { LinksMap } from 'pages/LinksMap';
-import { ProfileNetworkPage } from 'pages/ProfileNetworkPage';
 import UnsubscribeEmailPage from 'pages/UnsubscribeEmailPage/UnsubscribeEmailPage';
 
 import { coLinksPaths } from './paths';
@@ -79,60 +76,28 @@ export const coLinksRoutes = [
       element={<AuthenticatePage />}
     />
   </Route>,
-  <Route
-    key={'give_world_routes'}
-    element={
-      <GivePartyLayout>
-        <Outlet />
-      </GivePartyLayout>
-    }
-  >
-    <Route key={'giveparty'}>
-      <Route path={coLinksPaths.giveParty} element={<GiveParty />} />
-    </Route>
-    ,
-    <Route key={'givemap'}>
-      <Route path={coLinksPaths.givemap} element={<GiveMap />} />
-    </Route>
-    ,
-    <Route key={'linksmap'}>
-      <Route path={coLinksPaths.linksmap} element={<LinksMap />} />
-    </Route>
-    ,
-    <Route key={'giveparty'}>
-      <Route
-        path={coLinksPaths.partyProfile(':address')}
-        element={<PartyProfile />}
-      />
-    </Route>
-    ,
-    <Route key={'network'}>
-      <Route
-        path={coLinksPaths.profileNetwork(':address')}
-        element={<ProfileNetworkPage />}
-      />
-    </Route>
-    ,
-    <Route key={'giveboard'}>
-      <Route path={coLinksPaths.givePartyBoard} element={<GiveLeaderboard />} />
-    </Route>
-    ,
-    <Route key={'giveboard'}>
-      <Route
-        path={coLinksPaths.giveBoardSkill(':skill')}
-        element={<GiveSkillLeaderboard />}
-      />
-    </Route>
-    ,
-    <Route key={'givemap'}>
-      <Route
-        path={coLinksPaths.giveSkillMap(':skill')}
-        element={<GiveSkillMap />}
-      />
-    </Route>
-    ,
+  // Redirects since we sunsetted giveParty
+  <Route key={'giveparty'}>
+    <Route
+      path={coLinksPaths.deprecated_giveParty}
+      element={<Navigate to={coLinksPaths.give} replace />}
+    />
   </Route>,
-
+  <Route
+    key={'givepartyprofile'}
+    path={coLinksPaths.deprecated_givePartyAddress(':address')}
+    element={<GivePartyProfileRedirect />}
+  />,
+  <Route
+    key={'giveboard'}
+    path={coLinksPaths.deprecated_givePartyBoard}
+    element={<Navigate to={coLinksPaths.give} replace />}
+  />,
+  <Route
+    key={'giveskillboard'}
+    path={coLinksPaths.deprecated_giveBoardSkill(':skill')}
+    element={<GiveSkillRedirect />}
+  />,
   <Route
     key="splashLayout"
     element={
@@ -141,16 +106,31 @@ export const coLinksRoutes = [
       </CoLinksSplashLayout>
     }
   >
-    <Route
-      path="login"
-      element={
-        <RequireWeb3Auth>
-          <RedirectAfterLogin />
-        </RequireWeb3Auth>
-      }
-    />
+    <Route path="login" element={<RedirectAfterLogin />} />
     <Route path={coLinksPaths.info} element={<CoLinksSplashPage />} />
   </Route>,
+  <Route key={'fullscreenCoLinks'}>
+    <Route
+      element={
+        <CoLinksProvider>
+          <CoLinksLayout suppressNav>
+            <Outlet />
+          </CoLinksLayout>
+        </CoLinksProvider>
+      }
+    >
+      <Route
+        path={coLinksPaths.profileGiveMap(':address')}
+        element={<ViewProfilePageGiveMap />}
+      />
+      <Route
+        path={coLinksPaths.skillGiveMap(':skill')}
+        element={<SkillGiveMap />}
+      />
+    </Route>
+    ,
+  </Route>,
+
   <Fragment key="public">
     <Route
       element={
@@ -177,6 +157,12 @@ export const coLinksRoutes = [
           path={coLinksPaths.giveSkill(':skill')}
           element={<GiveSkillPage />}
         />
+        <Route key={'skillmap'}>
+          <Route
+            path={coLinksPaths.giveSkillMap(':skill')}
+            element={<GiveSkillMap />}
+          />
+        </Route>
       </Route>
       <Route
         path={coLinksPaths.exploreSkill(':skill')}
@@ -195,10 +181,21 @@ export const coLinksRoutes = [
         path={coLinksPaths.exploreHoldingMost}
         element={<HoldingMostLinksPage />}
       />
-
       <Route
-        path={coLinksPaths.profile(':address')}
-        element={<ViewProfilePage />}
+        path={coLinksPaths.profilePosts(':address')}
+        element={<ViewProfilePagePosts />}
+      />
+      <Route
+        path={coLinksPaths.profileGive(':address')}
+        element={<ViewProfilePageGive />}
+      />
+      <Route
+        path={coLinksPaths.profileNetwork(':address')}
+        element={<ViewProfilePageNetwork />}
+      />
+      <Route
+        path={coLinksPaths.profileReputation(':address')}
+        element={<ViewProfilePageReputation />}
       />
       <Route
         path={coLinksPaths.history(':address')}
@@ -220,13 +217,13 @@ export const coLinksRoutes = [
 
     <Route
       element={
-        <RequireLoggedIn>
+        <RequireAuth walletRequired={true}>
           <CoLinksProvider>
             <CoLinksLayout>
               <Outlet />
             </CoLinksLayout>
           </CoLinksProvider>
-        </RequireLoggedIn>
+        </RequireAuth>
       }
     >
       <Route path={coLinksPaths.exploreOld} element={<CoSoulExplorePage />} />
@@ -236,11 +233,9 @@ export const coLinksRoutes = [
         path={coLinksPaths.notifications}
         element={<NotificationsPage />}
       />
-      <Route path={coLinksPaths.score(':address')} element={<RepScorePage />} />
       <Route path={coLinksPaths.invites} element={<InvitesPage />} />
       <Route path={coLinksPaths.highlights} element={<HighlightsPage />} />
       <Route path={coLinksPaths.casts} element={<CastsPage />} />
-      <Route path={coLinksPaths.nfts} element={<NFTPage />} />
       <Route
         path={coLinksPaths.searchResult(':query', ':model')}
         element={<SearchPage />}
@@ -281,11 +276,11 @@ export const coLinksRoutes = [
 
     <Route
       element={
-        <RequireWeb3Auth>
+        <RequireAuth walletRequired={true}>
           <CoLinksWizardLayout>
             <Outlet />
           </CoLinksWizardLayout>
-        </RequireWeb3Auth>
+        </RequireAuth>
       }
     >
       <Route path={coLinksPaths.wizard} element={<WizardPage />} />

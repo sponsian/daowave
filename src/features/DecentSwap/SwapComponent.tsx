@@ -3,15 +3,13 @@ import { useEffect, useState, Fragment, useMemo, useCallback } from 'react';
 import { ChainId, TokenInfo } from '@decent.xyz/box-common';
 import { useBoxAction, UseBoxActionArgs } from '@decent.xyz/box-hooks';
 import { DropDownIcon, TokenSelector } from '@decent.xyz/box-ui';
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { AbstractConnector } from '@web3-react/abstract-connector';
 import { useBalance } from 'features/DecentSwap/useBalance';
 import { Address } from 'viem';
+import { Connector, useAccount } from 'wagmi';
 
 import { LoadingBar } from 'components/LoadingBar';
 import { LoadingIndicator } from 'components/LoadingIndicator';
 import useConnectedAddress from 'hooks/useConnectedAddress';
-import { useWeb3React } from 'hooks/useWeb3React';
 import { EthLogo, OptimismLogo } from 'icons/__generated';
 import { Button, Flex, Link, Panel, Text, TextField } from 'ui';
 
@@ -43,7 +41,8 @@ const roundValue = (value: any, decimals: number) => {
 };
 
 export const SwapComponent = () => {
-  const { chainId, library, connector } = useWeb3React();
+  const { chainId, connector } = useAccount();
+
   const address = useConnectedAddress();
   if (!chainId || !address) {
     return <LoadingIndicator />;
@@ -52,7 +51,6 @@ export const SwapComponent = () => {
     <DisplayModal
       connectedAddress={address as Address}
       chain={chainId}
-      provider={library}
       connector={connector}
     ></DisplayModal>
   );
@@ -60,13 +58,11 @@ export const SwapComponent = () => {
 function DisplayModal({
   connectedAddress,
   chain,
-  provider,
   connector,
 }: {
   connectedAddress: Address;
   chain: ChainId;
-  provider: JsonRpcProvider;
-  connector?: AbstractConnector;
+  connector?: Connector;
 }) {
   const [routeVars, setRouteVars] = useState<RouteVars>({
     srcChain: ChainId.BASE,
@@ -400,7 +396,7 @@ function DisplayModal({
                 setSubmitting,
                 setShowContinue,
                 connectedAddress,
-                provider,
+                srcChain,
               })
             }
           >

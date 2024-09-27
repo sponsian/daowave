@@ -36,10 +36,7 @@ import getHeadlines from './_handlers/getHeadlines';
 import getSimilarProfiles from './_handlers/getSimilarProfiles';
 import giveCsv from './_handlers/giveCsv';
 import inviteWaitingList from './_handlers/inviteWaitingList';
-import linkDiscordCircle from './_handlers/linkDiscordCircle';
-import linkDiscordUser from './_handlers/linkDiscordUser';
 import logoutUser from './_handlers/logoutUser';
-import redeemInviteCode from './_handlers/redeemInviteCode';
 import replenishInviteCodes from './_handlers/replenishInviteCodes';
 import requestInviteCode from './_handlers/requestInviteCode';
 import restoreCoordinape from './_handlers/restoreCoordinape';
@@ -97,10 +94,7 @@ const HANDLERS: HandlerDict = {
   giveCsv,
   guildInfo,
   inviteWaitingList,
-  linkDiscordCircle,
-  linkDiscordUser,
   logoutUser,
-  redeemInviteCode,
   replenishInviteCodes,
   requestInviteCode,
   restoreCoordinape,

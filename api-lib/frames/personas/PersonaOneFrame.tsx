@@ -2,11 +2,11 @@ import React from 'react';
 
 import { fetchPoints } from '../../../_api/hasura/actions/_handlers/createCoLinksGive.ts';
 import { minted } from '../../../_api/hasura/actions/_handlers/syncCoSoul.ts';
+import { insertInteractionEvents } from '../../gql/mutations.ts';
 import {
   getMintInfoFromReceipt,
   mintCoSoulForAddress,
-} from '../../../src/features/cosoul/api/cosoul.ts';
-import { insertInteractionEvents } from '../../gql/mutations.ts';
+} from '../../viem/contracts';
 import { FramePostInfo } from '../_getFramePostInfo.tsx';
 import { getViewerFromParams } from '../_getViewerFromParams.ts';
 import { staticResourceIdentifier } from '../_staticResourceIdentifier.ts';
@@ -63,11 +63,16 @@ const imageNode = async (params: Record<string, string>) => {
 
 export const mintCoSoul = async (mintToAddr: string, profileId: number) => {
   try {
-    const tx = await mintCoSoulForAddress(mintToAddr);
-    const txReceipt = await tx.wait();
+    const txReceipt = await mintCoSoulForAddress(mintToAddr);
     const { tokenId } = await getMintInfoFromReceipt(txReceipt);
 
-    await minted(mintToAddr, tx.hash, tokenId, profileId, false);
+    await minted(
+      mintToAddr,
+      txReceipt.transactionHash,
+      Number(tokenId),
+      profileId,
+      false
+    );
   } catch (e) {
     // hey maybe its already minted
 

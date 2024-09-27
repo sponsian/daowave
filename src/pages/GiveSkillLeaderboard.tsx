@@ -2,20 +2,18 @@ import { useEffect, useState } from 'react';
 
 import { useQuery } from 'react-query';
 import { NavLink, useParams } from 'react-router-dom';
+import { skillTextStyle } from 'stitches.config';
 
-import { webAppURL } from '../config/webAppURL';
-import { Maximize, Wand } from '../icons/__generated';
+import { Maximize } from '../icons/__generated';
 import { order_by } from '../lib/anongql/__generated__/zeus';
 import { anonClient } from '../lib/anongql/anonClient';
 import { coLinksPaths } from '../routes/paths';
-import { disabledStyle } from '../stitches.config';
 import { shortenAddressWithFrontLength } from '../utils';
 import { LoadingIndicator } from 'components/LoadingIndicator';
-import { Avatar, Button, Flex, Link, Text } from 'ui';
-import { PartyDisplayText } from 'ui/Tooltip/PartyDisplayText';
+import { Avatar, Button, Flex, Panel, Text } from 'ui';
 
 import { GiveLeaderboardColumn, GiveLeaderboardRow } from './GiveLeaderboard';
-import { GiveGraph } from './NetworkViz/GiveGraph';
+import { AutosizedGiveGraph } from './NetworkViz/AutosizedGiveGraph';
 
 type sortBy =
   | 'gives'
@@ -25,11 +23,7 @@ type sortBy =
   | 'gives_last_30_days'
   | 'name';
 
-export const GiveSkillLeaderboard = ({
-  profileFunc = coLinksPaths.partyProfile,
-}: {
-  profileFunc?(address: string): string;
-}) => {
+export const GiveSkillLeaderboard = () => {
   const { skill } = useParams();
   const [sort, setSortRaw] = useState<sortBy>('gives');
   const [desc, setDesc] = useState<boolean>(true);
@@ -118,73 +112,59 @@ export const GiveSkillLeaderboard = ({
     }
   }, [data, sort, desc]);
 
-  const castLeaderboardUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(skill ? '#' + skill + ' GIVE Leaders' : '')}&embeds[]=${webAppURL('colinks')}/api/frames/router/meta/skill.leaderboard/${encodeURIComponent(skill ?? '')}`;
-
   if (!data || isLoading)
     return (
-      <>
-        <Flex column css={{ width: '100%', mb: '$1xl' }}>
-          <LoadingIndicator />
-        </Flex>
-      </>
+      <Flex column css={{ width: '100%', mb: '$1xl' }}>
+        <LoadingIndicator />
+      </Flex>
     );
 
   return (
     <>
-      <Flex
-        css={{
-          justifyContent: 'center',
-        }}
-      >
-        <Button
-          as={Link}
-          href={castLeaderboardUrl}
-          target="_blank"
-          rel="noreferrer"
-          css={{
-            ...(!skill && {
-              ...disabledStyle,
-            }),
-          }}
-        >
-          <Wand fa size={'md'} /> Cast in Farcaster
-        </Button>
-      </Flex>
-
       {/*Content*/}
-      <Flex
-        css={{
-          padding: '16px',
-          backgroundColor: 'rgb(8 18 29 / 25%)',
-          borderRadius: '$2',
-          // border: 'solid 1px #424a51',
-          '@tablet': {
-            p: '12px 8px',
-          },
-        }}
-      >
+      <Panel noBorder>
         {/*Table*/}
         <Flex
           css={{
             width: '100%',
             flexFlow: 'column',
             alignItems: 'flex-start',
-            color: 'white',
           }}
         >
-          <Text
-            h2
+          <Flex
+            column
             css={{
               width: '100%',
               justifyContent: 'center',
-              m: '$xs 0 $md',
-              alignItems: 'baseline',
-              gap: '$xs',
+              alignItems: 'center',
+              mb: '$md',
+              borderRadius: '$3',
+              background: 'linear-gradient(90deg, $complete 25%, $cta 80%)',
+              p: '$md',
+              color: '$textOnCta',
             }}
           >
-            <PartyDisplayText text={`#${skill}`} />
-            <Text semibold>GIVEs</Text>
-          </Text>
+            <Text
+              h2
+              display
+              css={{
+                ...skillTextStyle,
+                color: '$textOnCta',
+                pb: '$xs',
+                borderBottom: '1px solid $black20',
+              }}
+            >{`#${skill}`}</Text>
+            <Text
+              size="small"
+              css={{
+                mt: '$sm',
+                height: 'auto',
+                color: '$textOnCta',
+              }}
+            >
+              Top GIVE
+            </Text>
+          </Flex>
 
           <Flex
             css={{
@@ -192,19 +172,12 @@ export const GiveSkillLeaderboard = ({
               height: 200,
               width: '100%',
               overflow: 'hidden',
-              background: 'rgba(0,0,0,0.3)',
+              background: 'rgba(0,0,0,0.1)',
               borderRadius: '$2',
               mb: '$sm',
             }}
           >
-            {/*FIXME: this width is a hack to get the thing to fit on the page, we need pct fit or something else*/}
-            <GiveGraph
-              width={300}
-              skill={skill}
-              height={200}
-              zoom={false}
-              compact={true}
-            />
+            <AutosizedGiveGraph mapHeight={200} expand={false} skill={skill} />
             <Flex
               css={{
                 position: 'absolute',
@@ -216,12 +189,12 @@ export const GiveSkillLeaderboard = ({
             >
               <Button
                 as={NavLink}
-                to={coLinksPaths.giveSkillMap(`${skill}`)}
+                to={coLinksPaths.skillGiveMap(`${skill}`)}
                 color={'cta'}
                 size="xs"
               >
                 <Maximize />
-                Expand View
+                Expand GIVE Map
               </Button>
             </Flex>
           </Flex>
@@ -277,12 +250,13 @@ export const GiveSkillLeaderboard = ({
                 >
                   <Flex
                     as={NavLink}
-                    to={profileFunc(member.profile?.address ?? '')}
+                    to={coLinksPaths.profileGive(member.profile?.address ?? '')}
                     row
                     css={{
                       alignItems: 'center',
                       gap: '$sm',
                       textDecoration: 'none',
+                      color: '$link',
                     }}
                   >
                     <Avatar
@@ -314,7 +288,7 @@ export const GiveSkillLeaderboard = ({
               </GiveLeaderboardRow>
             ))}
         </Flex>
-      </Flex>
+      </Panel>
     </>
   );
 };

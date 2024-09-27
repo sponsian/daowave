@@ -47,7 +47,7 @@ select_permissions:
         - holder
         - target
       filter: {}
-      limit: 1
+      limit: 100
       allow_aggregations: true
     comment: ""
   - role: user
@@ -61,19 +61,6 @@ select_permissions:
       allow_aggregations: true
     comment: ""
 event_triggers:
-  - name: fetchNFTsForNewHolder
-    definition:
-      enable_manual: false
-      insert:
-        columns: '*'
-    retry_conf:
-      interval_sec: 10
-      num_retries: 0
-      timeout_sec: 60
-    webhook: '{{HASURA_API_BASE_URL}}/event_triggers/eventManager?event=fetchNFTsForNewHolder'
-    headers:
-      - name: verification_key
-        value_from_env: HASURA_EVENT_SECRET
   - name: updateLinkHolderRepScore
     definition:
       delete:

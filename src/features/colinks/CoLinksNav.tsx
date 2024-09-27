@@ -1,14 +1,29 @@
 import { memo, useContext, useEffect, useState } from 'react';
 
+import { InfoCircledIcon } from '@radix-ui/react-icons';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { CoLogoMark } from 'features/nav/CoLogoMark';
 import { GiveAvailablePopover } from 'features/points/GiveAvailablePopover';
+import { PointsBar } from 'features/points/PointsBar';
+import { PointsBarInfo } from 'features/points/PointsBarInfo';
+import { usePoints } from 'features/points/usePoints';
 import { useLocation } from 'react-router';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 import { isFeatureEnabled } from '../../config/features';
 import { moveBg } from '../../keyframes';
 import { coLinksPaths } from '../../routes/paths';
-import { Button, Flex, HR, IconButton, Link, Text } from '../../ui';
+import {
+  Button,
+  Flex,
+  HR,
+  IconButton,
+  Link,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+} from '../../ui';
 import { NavLogo } from '../nav/NavLogo';
 import { useNotificationCount } from '../notifications/useNotificationCount';
 import { CoLinksSearchBox } from '../SearchBox/CoLinksSearchBox';
@@ -18,6 +33,7 @@ import {
   BoltFill,
   CertificateFill,
   Gear,
+  GemCoFillSm,
   GemCoOutline,
   HouseFill,
   Menu,
@@ -39,6 +55,7 @@ export const CoLinksNav = () => {
   const { data } = useCoLinksNavQuery();
   const { address } = useContext(CoLinksContext);
   const location = useLocation();
+  const { give } = usePoints();
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -58,7 +75,7 @@ export const CoLinksNav = () => {
         width: '350px',
         transition: '.2s ease-in-out',
         '@lg': { width: '300px', p: '$lg $lg 0' },
-        '@md': { width: '250px' },
+        '@md': { width: '260px' },
         '@sm': {
           position: 'absolute',
           left: mobileMenuOpen ? '0' : '-100vw',
@@ -101,7 +118,7 @@ export const CoLinksNav = () => {
             top: 0,
             left: 0,
             width: '100%',
-            p: '$md $lg',
+            p: '$md',
             height: '$3xl',
             button: { display: 'flex' },
           },
@@ -182,11 +199,13 @@ export const CoLinksNav = () => {
       <Flex column>
         {data && (
           <Flex
+            column
             css={{
               mt: '$sm',
               mb: '$lg',
               width: '100%',
               position: 'relative',
+              gap: '$md',
               // gradient overlaying overflowing links
               '&::after': {
                 content: '',
@@ -217,6 +236,33 @@ export const CoLinksNav = () => {
                 }}
               />
             )}
+            <Flex column>
+              <Flex css={{ justifyContent: 'space-between' }}>
+                <Flex>
+                  <Text semibold size="small">
+                    GIVE Bar
+                  </Text>
+                  <Popover>
+                    <PopoverTrigger css={{ cursor: 'pointer' }}>
+                      <IconButton>
+                        <InfoCircledIcon />
+                      </IconButton>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="start"
+                      css={{ maxWidth: 300, overflow: 'clip' }}
+                    >
+                      <PointsBarInfo />
+                    </PopoverContent>
+                  </Popover>
+                </Flex>
+                <Text size="small" semibold color="link">
+                  {give}
+                  <GemCoOutline fa css={{ ml: '$xs' }} />
+                </Text>
+              </Flex>
+              <PointsBar barOnly />
+            </Flex>
             <CoLinksNavProfile
               name={data.profile.name}
               avatar={data.profile.avatar}
@@ -308,7 +354,7 @@ const LoggedInItems = ({
       </NavItem>
       {isFeatureEnabled('give_zone') && (
         <NavItem path={coLinksPaths.give}>
-          <GemCoOutline size="lg" nostroke />
+          <GemCoFillSm size="lg" nostroke />
           GIVE
         </NavItem>
       )}
@@ -355,7 +401,7 @@ const LoggedInItems = ({
         </Flex>
       </NavItem>
       <HR />
-      <NavItem path={address ? coLinksPaths.profile(address) : ''}>
+      <NavItem path={address ? coLinksPaths.profileGive(address) : ''}>
         <Flex
           css={{
             justifyContent: 'space-between',
@@ -384,7 +430,7 @@ const LoggedInItems = ({
           </IconButton>
         </Flex>
       </NavItem>
-      <NavItem path={address ? coLinksPaths.score(address) : ''}>
+      <NavItem path={address ? coLinksPaths.profileReputation(address) : ''}>
         <CertificateFill size="lg" nostroke />
         Rep Score
       </NavItem>
@@ -396,6 +442,8 @@ const LoggedInItems = ({
   );
 };
 const LoggedOutItems = () => {
+  const { openConnectModal, connectModalOpen } = useConnectModal();
+
   return (
     <>
       {/* <NavItem path={coLinksPaths.home}> */}
@@ -439,7 +487,13 @@ const LoggedOutItems = () => {
       {/*   </Flex> */}
       {/* </NavItem> */}
       <HR />
-      <Button as={NavLink} to={coLinksPaths.wizardStart} color="cta">
+      <Button
+        onClick={() => {
+          if (openConnectModal && !connectModalOpen) openConnectModal();
+        }}
+        disabled={connectModalOpen}
+        color="cta"
+      >
         Login or Join CoLinks
       </Button>
     </>

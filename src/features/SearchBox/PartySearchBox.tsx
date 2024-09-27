@@ -8,8 +8,8 @@ import { SearchBox } from './SearchBox';
 export const PartySearchBox = ({
   size = 'medium',
   registerKeyDown = true,
-  profileFunc = coLinksPaths.partyProfile,
-  skillFunc = coLinksPaths.giveBoardSkill,
+  profileFunc = coLinksPaths.profileGive,
+  skillFunc = coLinksPaths.giveSkill,
 }: {
   size?: 'medium' | 'large';
   registerKeyDown?: boolean;

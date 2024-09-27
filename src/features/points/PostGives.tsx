@@ -16,6 +16,7 @@ import {
 } from '../../ui';
 import { ExternalLink, GemCoOutline, X } from 'icons/__generated';
 import { coLinksPaths } from 'routes/paths';
+
 type Gives = {
   id: number;
   skill?: string;
@@ -34,7 +35,7 @@ export const PostGives = ({
   clearSkill: () => void;
   gives: Gives;
 }) => {
-  const profileId = useProfileId(true);
+  const profileId = useProfileId(false);
   const sortedGives = groupAndSortGive(gives);
   return (
     <>
@@ -130,7 +131,7 @@ export const PostGives = ({
                                 semibold
                                 css={{ textDecoration: 'none' }}
                                 as={NavLink}
-                                to={coLinksPaths.profile(
+                                to={coLinksPaths.profileGive(
                                   give.giver_profile_public.address || ''
                                 )}
                               >

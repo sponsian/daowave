@@ -5,14 +5,19 @@ import { useLocation } from 'react-router-dom';
 import { scrollToTop } from '../../components';
 import { GlobalUi } from 'components/GlobalUi';
 import HelpButton from 'components/HelpButton';
-import { useReloadCookieAuth } from 'hooks/useReloadCookieAuth';
 import { EmailBanner } from 'pages/ProfilePage/EmailSettings/EmailBanner';
 import { Box, Flex, Text } from 'ui';
 
 import { CoLinksContext } from './CoLinksContext';
 import { CoLinksNav } from './CoLinksNav';
 
-export const CoLinksLayout = ({ children }: { children: React.ReactNode }) => {
+export const CoLinksLayout = ({
+  children,
+  suppressNav = false,
+}: {
+  children: React.ReactNode;
+  suppressNav?: boolean;
+}) => {
   // Scroll to top on every location change
   const location = useLocation();
 
@@ -21,8 +26,6 @@ export const CoLinksLayout = ({ children }: { children: React.ReactNode }) => {
   }, [location]);
 
   const { coLinksReadOnly } = useContext(CoLinksContext);
-
-  useReloadCookieAuth();
 
   // if (library === undefined || onCorrectChain === undefined) {
   //   return <LoadingIndicator />;
@@ -47,7 +50,7 @@ export const CoLinksLayout = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       <Flex css={{ height: 'auto' }}>
-        <CoLinksNav />
+        {!suppressNav && <CoLinksNav />}
         <Box css={{ width: '100%' }}>
           <GlobalUi />
           <HelpButton css={{ '@sm': { display: 'none' } }} />
@@ -58,10 +61,12 @@ export const CoLinksLayout = ({ children }: { children: React.ReactNode }) => {
               overflowY: 'auto',
               '@sm': {
                 zIndex: 1,
-                // for hamburger menu
-                pt: '$3xl',
-                // for mobile browser bottom clipping
-                pb: '$4xl',
+                ...(!suppressNav && {
+                  // for hamburger menu
+                  pt: '$3xl',
+                  // for mobile browser bottom clipping
+                  pb: '$4xl',
+                }),
               },
             }}
           >

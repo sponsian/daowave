@@ -21,8 +21,8 @@ const QUERY_KEY_SEARCH = 'partySearchBoxQuery';
 export const PartySearchResults = ({
   setPopoverOpen,
   inputRef,
-  profileFunc = coLinksPaths.partyProfile,
-  skillFunc = coLinksPaths.giveBoardSkill,
+  profileFunc = coLinksPaths.profileGive,
+  skillFunc = coLinksPaths.giveSkill,
 }: {
   inputRef: React.RefObject<HTMLInputElement>;
   setPopoverOpen: React.Dispatch<SetStateAction<boolean>>;

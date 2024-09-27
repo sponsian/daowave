@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { order_by } from '../../../../api-lib/gql/__generated__/zeus';
 import { adminClient } from '../../../../api-lib/gql/adminClient.ts';
-import { getInput } from '../../../../api-lib/handlerHelpers';
+import { getAnonInput } from '../../../../api-lib/handlerHelpers.ts';
 import { InternalServerError } from '../../../../api-lib/HttpError';
 import {
   checkURLType,
@@ -20,10 +20,11 @@ const getCastsSchema = z.object({
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { payload } = await getInput(req, getCastsSchema);
+  const { payload } = await getAnonInput(req, getCastsSchema);
 
   try {
     const casts = await fetchCasts(payload);
+
     const mentionsMap = await getMentionsMap(casts);
     const enrichedCasts = await Promise.all(
       casts
@@ -154,8 +155,6 @@ const fetchCasts = async ({
             deleted_at: { _is_null: true },
             ...(fid ? { fid: { _eq: fid } } : {}),
             ...(cast_ids ? { id: { _in: cast_ids } } : {}),
-            parent_hash: { _is_null: true }, // only top-level casts
-            // farcaster_account: {},
           },
           order_by: [{ created_at: order_by.desc }],
           limit: LIMIT,

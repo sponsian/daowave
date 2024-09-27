@@ -23,7 +23,7 @@ export const SingleColumnLayout = ({
         display: 'flex',
         flexDirection: 'column',
         gap: '$md',
-        '@sm': { p: '$xl $md', gap: 0 },
+        '@sm': { p: '$xl $md' },
         ...css,
       }}
     >
@@ -42,6 +42,9 @@ export const TwoColumnSmallRightLayout = ({
         display: 'grid',
         gap: '$xl',
         gridTemplateColumns: `minmax(auto, $readable) minmax(${artWidthMobile}, 1fr)`,
+        '@sm': {
+          gridTemplateColumns: '1fr',
+        },
         '@md': {
           gridTemplateColumns: 'minmax(auto, $readable) minmax(auto, 1fr)',
         },

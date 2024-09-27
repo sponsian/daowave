@@ -9,13 +9,12 @@ import { Magic } from 'magic-sdk';
 import { DebugLogger } from '../../common-lib/log';
 import {
   IN_PRODUCTION,
-  VITE_ALCHEMY_OPTIMISM_API_KEY,
-  VITE_ALCHEMY_OPTIMISM_SEPOLIA_API_KEY,
+  MAGIC_API_KEY,
+  VITE_FE_ALCHEMY_API_KEY,
 } from 'config/env';
 
 const logger = new DebugLogger('magic');
 
-const API_KEY = import.meta.env.VITE_MAGIC_API_KEY;
 export const PROVIDER_TYPE = 'magic';
 export const KEY_MAGIC_NETWORK = 'magic:network';
 // FIXME fix typing here
@@ -32,24 +31,24 @@ const networks: Record<string, EthNetworkConfiguration> = {
     chainId: 137,
   },
   optimism: {
-    rpcUrl: `https://opt-mainnet.g.alchemy.com/v2/${VITE_ALCHEMY_OPTIMISM_API_KEY}`,
+    rpcUrl: `https://opt-mainnet.g.alchemy.com/v2/${VITE_FE_ALCHEMY_API_KEY}`,
     chainId: 10,
   },
   optimism_sepolia: {
-    rpcUrl: `https://opt-sepolia.g.alchemy.com/v2/${VITE_ALCHEMY_OPTIMISM_SEPOLIA_API_KEY}`,
+    rpcUrl: `https://opt-sepolia.g.alchemy.com/v2/${VITE_FE_ALCHEMY_API_KEY}`,
     chainId: 11155420,
   },
 };
 
 export const getMagic = () => {
-  assert(API_KEY, 'VITE_MAGIC_API_KEY is missing');
+  assert(MAGIC_API_KEY, 'VITE_MAGIC_API_KEY is missing');
 
   if (!magic) {
     const network = IN_PRODUCTION
       ? networks.polygon
       : networks.optimism_sepolia;
 
-    magic = new Magic(API_KEY, {
+    magic = new Magic(MAGIC_API_KEY, {
       network,
       extensions: [new ConnectExtension()],
     });
@@ -60,13 +59,13 @@ export const getMagic = () => {
 };
 
 export const getOptMagic = () => {
-  assert(API_KEY, 'VITE_MAGIC_API_KEY is missing');
+  assert(MAGIC_API_KEY, 'VITE_MAGIC_API_KEY is missing');
 
   if (!optMagic) {
     const network = IN_PRODUCTION
       ? networks.optimism
       : networks.optimism_sepolia;
-    optMagic = new Magic(API_KEY, {
+    optMagic = new Magic(MAGIC_API_KEY, {
       network,
       extensions: [new ConnectExtension()],
     });

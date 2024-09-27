@@ -5,7 +5,6 @@ import checkNomineeDiscord from '../../../api-lib/event_triggers/checkNomineeDis
 import checkNomineeDiscordBot from '../../../api-lib/event_triggers/checkNomineeDiscordBot';
 import checkNomineeTelegram from '../../../api-lib/event_triggers/checkNomineeTelegram';
 import connectFarcaster from '../../../api-lib/event_triggers/connectFarcaster.ts';
-import createCircleCRM from '../../../api-lib/event_triggers/createCircleCRM';
 import createContributionInteractionEvent from '../../../api-lib/event_triggers/createContributionInteractionEvent';
 import createNomineeDiscord from '../../../api-lib/event_triggers/createNomineeDiscord';
 import createNomineeDiscordBot from '../../../api-lib/event_triggers/createNomineeDiscordBot';
@@ -19,7 +18,6 @@ import createReactionInteractionEvent from '../../../api-lib/event_triggers/crea
 import createReplyInteractionEvent from '../../../api-lib/event_triggers/createReplyInteractionEvent';
 import createVouchedUser from '../../../api-lib/event_triggers/createVouchedUser';
 import discordUserLinked from '../../../api-lib/event_triggers/discordUserLinked';
-import fetchNFTsForNewHolder from '../../../api-lib/event_triggers/fetchNFTsForNewHolder';
 import insertOrgMember from '../../../api-lib/event_triggers/insertOrgMember';
 import linkTxInteractionEvent from '../../../api-lib/event_triggers/linkTxInteractionEvent';
 import linkTxNotification from '../../../api-lib/event_triggers/linkTxNotification';
@@ -57,7 +55,6 @@ const HANDLERS: HandlerDict = {
   checkNomineeDiscord,
   checkNomineeDiscordBot,
   checkNomineeTelegram,
-  createCircleCRM,
   createContributionInteractionEvent,
   createReactionInteractionEvent,
   linkTxInteractionEvent,
@@ -75,7 +72,6 @@ const HANDLERS: HandlerDict = {
   createVouchedUser,
   discordUserLinked,
   insertOrgMember,
-  fetchNFTsForNewHolder,
   muteChanged,
   optOutDiscord,
   optOutDiscordBot,

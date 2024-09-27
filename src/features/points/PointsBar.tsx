@@ -10,7 +10,11 @@ import {
   MAX_POINTS_CAP,
   POINTS_PER_GIVE,
 } from './getAvailablePoints';
+import { PointsBarInfo } from './PointsBarInfo';
 import { usePoints } from './usePoints';
+
+const barGradient =
+  'linear-gradient(90deg, $alert 0, $complete 70px, $cta 170px)';
 
 const progressStyles = {
   position: 'relative',
@@ -19,7 +23,7 @@ const progressStyles = {
     position: 'absolute',
     '&:after': {
       content: '',
-      borderLeft: '1px solid $borderDim',
+      borderLeft: '1px solid transparent',
       height: '1rem',
     },
     '&:last-of-type:after': {
@@ -38,6 +42,7 @@ const progressStyles = {
     borderRadius: '$3',
     background: '$surfaceNested',
     overflow: 'clip',
+    outline: '0.5px solid $borderDim',
     '&:not([value]), &:value': {
       appearance: 'none',
     },
@@ -45,10 +50,10 @@ const progressStyles = {
       background: '$surfaceNested',
     },
     '&::-webkit-progress-value': {
-      background: '$cta',
+      background: barGradient,
     },
     '&::-moz-progress-bar': {
-      background: '$cta',
+      background: barGradient,
     },
   },
 };
@@ -56,13 +61,20 @@ const progressStyles = {
 export const PointsBar = ({
   open = false,
   barOnly = false,
+  demo = false,
   forceTheme,
 }: {
   open?: boolean;
   barOnly?: boolean;
+  demo?: boolean;
   forceTheme?: 'dark' | 'light';
 }) => {
-  const { give, points } = usePoints();
+  let { give, points } = usePoints();
+
+  if (demo) {
+    give = 25;
+    points = MAX_POINTS_CAP;
+  }
 
   // Dynamically generate tickMark styles
   for (let i = 1; i <= MAX_GIVE; i++) {
@@ -173,22 +185,7 @@ export const PointsBar = ({
                 </Text>
               ))}
             </Flex>
-            {showInfo && (
-              <Flex column css={{ mt: '$sm', gap: '$md' }}>
-                <Text inline size="small">
-                  GIVE is a scarce and powerful way signal of appreciation. You
-                  can allocate GIVE to support ideas, skills and signal value.
-                </Text>
-                <Text inline size="small">
-                  GIVEs roll into the receiver&apos;s onchain pGIVE score on
-                  their CoSoul.
-                </Text>
-                <Text size="small">
-                  Your GIVE bar is always slowly recharging and maxes out at{' '}
-                  {MAX_GIVE}.
-                </Text>
-              </Flex>
-            )}
+            {showInfo && <PointsBarInfo />}
           </Flex>
         </Flex>
       </Panel>

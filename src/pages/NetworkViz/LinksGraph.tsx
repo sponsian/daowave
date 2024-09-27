@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useRef, useState, lazy } from 'react';
-
-const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
+import { lazy, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useQuery } from 'react-query';
 
+import { getAvatarPath } from '../../utils/domain';
 import { LoadingIndicator } from 'components/LoadingIndicator';
 import { coLinksPaths } from 'routes/paths';
 import { Flex } from 'ui';
+
+const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
 
 interface IMapNode {
   id: string;
@@ -97,7 +98,7 @@ export function LinksGraph({
         data.nodes.forEach((node: node) => {
           if (node.avatar && !imgCache.current[node.id]) {
             const img = new Image();
-            img.src = node.avatar;
+            img.src = getAvatarPath(node.avatar) ?? node.avatar;
             img.onload = () => {
               imgCache.current[node.id] = img;
             };
@@ -131,7 +132,7 @@ export function LinksGraph({
         }}
         nodeLabel={(n: any) => `${n.name}`}
         onNodeClick={(node: any) => {
-          window.open(`${coLinksPaths.partyProfile(node.id)}`);
+          window.open(`${coLinksPaths.profileGive(node.id)}`);
         }}
         {...(showExtras ? { nodeCanvasObject } : {})}
         //@ts-ignore TODO: fix types

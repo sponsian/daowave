@@ -1,8 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { CoLinks } from '@coordinape/contracts/typechain';
 import { ChainId } from '@decent.xyz/box-common';
-import { BigNumber } from '@ethersproject/bignumber';
 import { getBalance } from '@wagmi/core';
 import { ethers } from 'ethers';
 import { defaultAvailableChains } from 'features/DecentSwap/config';
@@ -11,21 +9,23 @@ import { wagmiChain, wagmiConfig } from 'features/wagmi/config';
 import { useQuery } from 'react-query';
 import { NavLink } from 'react-router-dom';
 import type { CSS } from 'stitches.config';
-import { Address } from 'viem';
+import { Account, Address } from 'viem';
+import { useAccount } from 'wagmi';
 
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useToast } from '../../hooks';
-import { useWeb3React } from '../../hooks/useWeb3React';
+import useProfileId from '../../hooks/useProfileId';
 import { Check, Link2 } from '../../icons/__generated';
 import { client } from '../../lib/gql/client';
 import { Button, Flex, Panel, Text } from '../../ui';
-import { sendAndTrackTx } from '../../utils/contractHelpers';
+import { sendAndTrackTx } from '../../utils/viem/contractHelpers';
 import { BridgeButton } from 'components/BridgeButton';
 import { OptimismBridgeButton } from 'components/OptimismBridgeButton';
 import { OrBar } from 'components/OrBar';
 import { IN_PREVIEW } from 'config/env';
 import { isFeatureEnabled } from 'config/features';
 import { coLinksPaths } from 'routes/paths';
+import { CoLinksWithWallet } from 'utils/viem/contracts';
 
 import { BuyButton } from './BuyButton';
 import { CoLinksContext } from './CoLinksContext';
@@ -40,6 +40,7 @@ export const BuyOrSellCoLinks = ({
   hideTitle = false,
   constrainWidth = false,
   buyOneOnly = false,
+  small = false,
   css,
 }: {
   subject: string;
@@ -47,6 +48,7 @@ export const BuyOrSellCoLinks = ({
   hideTitle?: boolean;
   constrainWidth?: boolean;
   buyOneOnly?: boolean;
+  small?: boolean;
   css?: CSS;
 }) => {
   const { coLinksReadOnly, awaitingWallet, setAwaitingWallet } =
@@ -57,17 +59,20 @@ export const BuyOrSellCoLinks = ({
   });
   const { showError } = useToast();
 
+  const profileId = useProfileId(false);
+
   const [buyPrice, setBuyPrice] = useState<string | null>(null);
-  const [buyPriceBN, setBuyPriceBN] = useState<BigNumber | null>(null);
+  const [buyPriceBN, setBuyPriceBN] = useState<bigint | null>(null);
   const [sellPrice, setSellPrice] = useState<string | null>(null);
-  const [supply, setSupply] = useState<number | null>(null);
+  const [supply, setSupply] = useState<bigint | null>(null);
 
   const subjectIsCurrentUser =
     address && subject.toLowerCase() == address.toLowerCase();
 
   const [progress, setProgress] = useState('');
 
-  const { chainId, account } = useWeb3React();
+  const { chainId, address: account } = useAccount();
+
   const doWithCoLinksContract = useDoWithCoLinksContract();
 
   const { data: opBalance } = useQuery(
@@ -85,8 +90,11 @@ export const BuyOrSellCoLinks = ({
       enabled: !!account,
     }
   );
-  const notEnoughBalance =
-    buyPriceBN && opBalance && buyPriceBN.toBigInt() > opBalance?.value;
+  const notEnoughBalance = !!(
+    buyPriceBN &&
+    opBalance &&
+    buyPriceBN > opBalance?.value
+  );
 
   const { data: subjectProfile } = useQuery(
     [QUERY_KEY_COLINKS, subject, 'profile', 'buykeys'],
@@ -131,20 +139,20 @@ export const BuyOrSellCoLinks = ({
     if (!coLinksReadOnly) {
       return;
     }
-    coLinksReadOnly
-      .getBuyPriceAfterFee(subject, 1)
+    coLinksReadOnly.read
+      .getBuyPriceAfterFee([subject as Address, 1n] as const)
       .then(b => {
         setBuyPrice(ethers.utils.formatEther(b) + ' ETH');
         setBuyPriceBN(b);
       })
       .catch(e => showError('Error getting buy price: ' + e.message));
-    coLinksReadOnly
-      .linkSupply(subject)
+    coLinksReadOnly.read
+      .linkSupply([subject as Address] as const)
       .then(b => {
-        setSupply(b.toNumber());
-        if (b.toNumber() > 0) {
-          coLinksReadOnly
-            .getSellPriceAfterFee(subject, 1)
+        setSupply(b);
+        if (b > 0) {
+          coLinksReadOnly.read
+            .getSellPriceAfterFee([subject as Address, 1n] as const)
             .then(b => setSellPrice(ethers.utils.formatEther(b) + ' ETH'))
             .catch(e => showError('Error getting sell price: ' + e.message));
         }
@@ -159,19 +167,25 @@ export const BuyOrSellCoLinks = ({
   };
 
   const sellLinkWithContract = async (
-    coLinksSigner: CoLinks,
+    coLinksWithWallet: CoLinksWithWallet,
     chainId: string
   ) => {
     try {
       setAwaitingWallet(true);
+
       const { receipt, error /*, tx*/ } = await sendAndTrackTx(
-        () => coLinksSigner.sellLinks(subject, 1),
+        () => {
+          const args = [subject as Address, 1n] as const;
+          return coLinksWithWallet.write.sellLinks(args, {
+            account: account as unknown as Account,
+            chain: wagmiChain,
+          });
+        },
         {
           showDefault: setProgress,
           description: `Sell CoLink`,
           signingMessage: 'Please confirm transaction in your wallet.',
           chainId: chainId.toString(),
-          contract: coLinksSigner,
         }
       );
       if (receipt) {
@@ -191,10 +205,22 @@ export const BuyOrSellCoLinks = ({
     }
   };
 
-  if (!address) {
+  if (!address || !profileId) {
     return (
-      <Flex css={{ width: '100%', justifyContent: 'center' }}>
-        <Button as={NavLink} to={coLinksPaths.wizardStart}>
+      <Flex
+        css={{
+          width: '100%',
+          justifyContent: 'center',
+          ...(small && {
+            justifyContent: 'flex-start',
+          }),
+        }}
+      >
+        <Button
+          size={small ? 'xs' : 'medium'}
+          as={NavLink}
+          to={coLinksPaths.wizardStart}
+        >
           Connect Wallet
         </Button>
       </Flex>
@@ -215,22 +241,22 @@ export const BuyOrSellCoLinks = ({
       css={{
         position: 'relative',
         width: '100%',
-        gap: '$md',
+        gap: small ? '$sm' : '$md',
         ...css,
       }}
     >
       {!hideTitle && (
         <Flex css={{ flexWrap: 'wrap', gap: '$xs' }}>
-          <Link2 css={{ mr: '$xs' }} />
-          <Text size={'medium'} semibold>
-            You Have {balance}
+          {!small && <Link2 css={{ mr: '$xs' }} />}
+          <Text size={small ? 'small' : 'medium'} semibold>
+            You Have {balance.toString()}
           </Text>
-          <Text semibold>
-            {subjectProfile.name} {balance == 1 ? 'Link' : 'Links'}
+          <Text size={small ? 'small' : 'medium'} semibold>
+            {subjectProfile.name} {balance == 1n ? 'Link' : 'Links'}
           </Text>{' '}
         </Flex>
       )}
-      <Flex css={{ gap: '$md' }}>
+      <Flex css={{ gap: '$md', ...(small && { width: '100%' }) }}>
         <Flex
           css={{
             flexGrow: 1,
@@ -247,7 +273,7 @@ export const BuyOrSellCoLinks = ({
               <Text tag color={'complete'}>
                 <Check /> You bought this Link
               </Text>
-            ) : supply === 0 &&
+            ) : (supply || 0) === 0 &&
               subject.toLowerCase() !== address.toLowerCase() ? (
               <Text size={'xs'}>
                 {subjectProfile.name} hasn&apos;t opted in to CoLinks yet. They
@@ -269,10 +295,19 @@ export const BuyOrSellCoLinks = ({
                   onSuccess={async () => {
                     refresh();
                   }}
-                  target={subject}
+                  target={subject as Address}
                   disabled={notEnoughBalance ?? false}
+                  size={small ? 'xs' : 'medium'}
                 />
-                <Text color="complete" semibold css={{ textAlign: 'right' }}>
+                <Text
+                  color="complete"
+                  size={small ? 'small' : undefined}
+                  semibold
+                  css={{
+                    textAlign: 'right',
+                    ...(small && { color: 'inherit' }),
+                  }}
+                >
                   {buyPrice !== null ? buyPrice : '...'}
                 </Text>
               </Flex>
@@ -292,13 +327,22 @@ export const BuyOrSellCoLinks = ({
                 <Button
                   onClick={sellLink}
                   disabled={
-                    awaitingWallet || (supply == 1 && !!subjectIsCurrentUser)
+                    awaitingWallet || (supply === 1n && !!subjectIsCurrentUser)
                   }
+                  size={small ? 'xs' : 'medium'}
                 >
                   Sell Link
                 </Button>
-                <Text semibold color="warning" css={{ textAlign: 'right' }}>
-                  {supply === 1 && subjectIsCurrentUser ? (
+                <Text
+                  semibold
+                  color="warning"
+                  size={small ? 'small' : undefined}
+                  css={{
+                    textAlign: 'right',
+                    ...(small && { color: 'inherit' }),
+                  }}
+                >
+                  {supply === 1n && subjectIsCurrentUser ? (
                     <Text
                       color="neutral"
                       semibold

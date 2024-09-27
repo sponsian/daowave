@@ -1,6 +1,4 @@
-import { BigNumber } from 'ethers';
-
-import { IN_PREVIEW, IN_PRODUCTION } from '../../config/env';
+import { IN_DEVELOPMENT, IN_PREVIEW, IN_PRODUCTION } from '../../config/env';
 import { isFeatureEnabled } from '../../config/features';
 
 const optimism = {
@@ -14,8 +12,8 @@ const optimism = {
     decimals: 18,
   },
   gasSettings: {
-    maxFeePerGas: BigNumber.from('100000000'),
-    maxPriorityFeePerGas: BigNumber.from('50'),
+    maxFeePerGas: 100000000n,
+    maxPriorityFeePerGas: 50n,
   },
 };
 const base = {
@@ -29,8 +27,8 @@ const base = {
     decimals: 18,
   },
   gasSettings: {
-    maxFeePerGas: BigNumber.from('100000000'),
-    maxPriorityFeePerGas: BigNumber.from('50'),
+    maxFeePerGas: 100000000n,
+    maxPriorityFeePerGas: 50n,
   },
 };
 const baseSepola = {
@@ -44,8 +42,8 @@ const baseSepola = {
     decimals: 18,
   },
   gasSettings: {
-    maxFeePerGas: BigNumber.from('1000000'),
-    maxPriorityFeePerGas: BigNumber.from('50'),
+    maxFeePerGas: 1000000n,
+    maxPriorityFeePerGas: 50n,
   },
 };
 
@@ -65,6 +63,7 @@ const localhost = {
   chainId: '0x53A',
   chainName: 'Localhost 8546',
   rpcUrls: ['http://localhost:8546'], // TOOD: idk if this is work
+  blockExplorerUrls: ['http://localhost:8546'],
   nativeCurrency: {
     name: 'ETH',
     symbol: 'ETH',
@@ -77,11 +76,15 @@ const localhost = {
 // production: optimism
 // staging: optimismSepolia
 // localhost: localhost ganache
-export const chain =
-  isFeatureEnabled('test_decent') || IN_PRODUCTION
+
+export const chain = IN_DEVELOPMENT
+  ? localhost
+  : IN_PRODUCTION
     ? optimism
     : IN_PREVIEW
       ? optimismSepolia
-      : localhost;
+      : isFeatureEnabled('test_decent')
+        ? optimismSepolia
+        : optimism;
 
 export const baseChain = IN_PRODUCTION ? base : baseSepola;

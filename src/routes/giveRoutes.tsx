@@ -3,10 +3,11 @@
 // look into this.
 import { Fragment, lazy, Suspense } from 'react';
 
+import { RequireAuth } from 'features/rainbowkit/RequireAuth';
 import { Outlet, Route, Routes } from 'react-router-dom';
 
 import { MainLayout } from '../components';
-import { RequireWeb3Auth, useLoginData } from '../features/auth';
+import { useLoginData } from '../features/auth';
 import { OrgPage, OrgSettingsPage } from '../features/orgs';
 import { isUserAdmin, isUserMember } from '../lib/users';
 import AccountPage from '../pages/AccountPage/AccountPage';
@@ -17,7 +18,6 @@ import CirclesPage from '../pages/CirclesPage';
 import ContributionsPage from '../pages/ContributionsPage';
 import CreateCirclePage from '../pages/CreateCirclePage';
 import DevPortalPage from '../pages/DevPortalPage';
-import DiscordPage from '../pages/DiscordPage';
 import DistributionsPage from '../pages/DistributionsPage';
 import GiftCircleGivePage from '../pages/GiftCircleGivePage';
 import HistoryPage from '../pages/HistoryPage';
@@ -38,7 +38,7 @@ import {
   useRoleInCircle,
 } from './hooks';
 import { givePaths } from './paths';
-import { Redirect } from './RedirectAfterLogin';
+import { Redirect, RedirectAfterLogin } from './RedirectAfterLogin';
 
 const LazyAssetMapPage = lazy(() => import('pages/MapPage'));
 
@@ -86,7 +86,6 @@ const GiveRoutes = () => {
       <Route path={givePaths.account} element={<AccountPage />} />
       <Route path={givePaths.createCircle} element={<CreateCirclePage />} />
       <Route path={givePaths.developers} element={<DevPortalPage />} />
-      <Route path={givePaths.discordLink} element={<DiscordPage />} />
 
       <Route path={givePaths.organization(':orgId')}>
         <Route path="" element={<OrgPage />} />
@@ -183,6 +182,14 @@ export const giveRoutes = [
         </MainLayout>
       }
     >
+      <Route
+        path="login"
+        element={
+          <RequireAuth walletRequired={true}>
+            <RedirectAfterLogin />
+          </RequireAuth>
+        }
+      />
       <Route path={givePaths.join(':token')} element={<JoinPage />} />
       <Route path={givePaths.verify(':uuid')} element={<VerifyEmailPage />} />
       <Route
@@ -192,11 +199,11 @@ export const giveRoutes = [
       <Route
         path="*"
         element={
-          <RequireWeb3Auth>
+          <RequireAuth walletRequired={false}>
             <Suspense fallback={null}>
               <GiveRoutes />
             </Suspense>
-          </RequireWeb3Auth>
+          </RequireAuth>
         }
       />
     </Route>

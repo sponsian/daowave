@@ -6,6 +6,10 @@ export const START_A_PARTY_INTENT =
   'https://warpcast.com/~/compose?text=https://give.party/type-a-skill-here';
 export const EXTERNAL_URL_DOCS_GIVE =
   'https://docs.coordinape.com/colinks/give';
+export const EXTERNAL_URL_DOCS_SOCIAL_ORACLE =
+  'https://docs.coordinape.com/social-oracle-tm-give';
+export const EXTERNAL_URL_SOCIAL_ORACLE_SCHEMA =
+  'https://base.easscan.org/schema/view/0x82c2ec8ec89cf1d13022ff0867744f1cecf932faa4fe334aa1bb443edbfee3fa';
 export const EXTERNAL_URL_DOCS_COLINKS =
   'https://docs.coordinape.com/colinks/what-is-colinks';
 export const EXTERNAL_URL_DOCS_CONTRIBUTIONS =
@@ -74,30 +78,32 @@ export const coLinksPaths = {
   exploreSkill: (skill: string) => `/explore/interests/${skill}`,
   exploreSkills: `/explore/interests`,
   give: '/give',
-  giveSkill: (skill: string) => `/give/rank/${skill}`,
-  giveParty: `/giveparty`,
-  givePartyBoard: `/giveboard`,
-  giveBoardSkill: (skill: string) => `/giveboard/${skill}`,
-  giveSkillMap: (skill: string) => `/givemap/${skill}`,
-  partyProfile: (address: string) => `/giveparty/${address}`,
+  giveSkill: (skill: string) => `/give/leaderboard/${skill}`,
+  giveSkillMap: (skill: string) => `/give/map/${skill}`,
+  deprecated_giveParty: `/giveparty`,
+  deprecated_givePartyAddress: (address: string) => `/giveparty/${address}`,
+  deprecated_givePartyBoard: `/giveboard`,
+  deprecated_giveBoardSkill: (skill: string) => `/giveboard/${skill}`,
   highlights: '/highlights',
   history: (address: string) => `/${address}/history`,
   holders: (address: string) => `/${address}/holders`,
   holdings: (address: string) => `/${address}/holdings`,
   home: '/home',
-  givemap: '/givemap',
   linksmap: '/linksmap',
   info: '/info',
   inviteCode: (code: string) => `/invite/${code}`,
   invites: '/invites',
-  profileNetwork: (address: string) => `/network/${address}`,
   launch: '/launch',
   leaderboard: '/leaderboard',
   linking: '/linking',
-  nfts: '/nfts',
   notifications: '/notifications',
   post: (id: string) => `/post/${id}`,
-  profile: (address: string) => `/${address}`,
+  profilePosts: (address: string) => `/${address}/posts`,
+  profileGive: (address: string) => `/${address}`,
+  profileGiveMap: (address: string) => `/${address}/givemap`,
+  skillGiveMap: (skill: string) => `/give/map/${skill}`,
+  profileNetwork: (address: string) => `/${address}/network`,
+  profileReputation: (address: string) => `/${address}/reputation`,
   root: '/',
   score: (address: string) => `/${address}/score`,
   search: `/search`,
@@ -145,6 +151,7 @@ export const givePaths = {
   discordLink: '/discord/link',
   home: '/',
   profile: (address: string) => `/profile/${address}`,
+
   organization: (orgId: string) => `/organizations/${orgId}`,
   orgActivity: orgPath('activity'),
   organizationSettings: orgPath(`settings`),

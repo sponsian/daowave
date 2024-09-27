@@ -192,10 +192,6 @@ actions:
           value_from_env: HASURA_EVENT_SECRET
     permissions:
       - role: user
-  - name: deleteDiscordUser
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_API_BASE_URL}}/actions/actionManager?action_name=deleteDiscordUser'
   - name: deleteEmail
     definition:
       kind: synchronous
@@ -281,6 +277,7 @@ actions:
         - name: verification_key
           value_from_env: HASURA_EVENT_SECRET
     permissions:
+      - role: anon
       - role: user
     comment: getCasts
   - name: getGuildInfo
@@ -328,26 +325,6 @@ actions:
       headers:
         - name: verification_key
           value_from_env: HASURA_EVENT_SECRET
-  - name: linkDiscordCircle
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_API_BASE_URL}}/actions/actionManager?action_name=linkDiscordCircle'
-      headers:
-        - name: verification_key
-          value_from_env: HASURA_EVENT_SECRET
-    permissions:
-      - role: user
-    comment: allow authenticated users to link a discord channel to a circle they admin
-  - name: linkDiscordUser
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_API_BASE_URL}}/actions/actionManager?action_name=linkDiscordUser'
-      headers:
-        - name: verification_key
-          value_from_env: HASURA_EVENT_SECRET
-    permissions:
-      - role: user
-    comment: allow authenticated users to link a discord account to their profile
   - name: logoutUser
     definition:
       kind: synchronous
@@ -361,15 +338,6 @@ actions:
     definition:
       kind: synchronous
       handler: '{{HASURA_API_BASE_URL}}/actions/actionManager?action_name=markClaimed'
-      headers:
-        - name: verification_key
-          value_from_env: HASURA_EVENT_SECRET
-    permissions:
-      - role: user
-  - name: redeemInviteCode
-    definition:
-      kind: synchronous
-      handler: '{{HASURA_API_BASE_URL}}/actions/actionManager?action_name=redeemInviteCode'
       headers:
         - name: verification_key
           value_from_env: HASURA_EVENT_SECRET
@@ -636,11 +604,8 @@ custom_types:
     - name: DeleteContributionInput
     - name: UpdateContributionInput
     - name: MarkClaimedInput
-    - name: LinkDiscordUserInput
     - name: DeleteUsersInput
     - name: UpdateProfileNameInput
-    - name: DeleteDiscordUserInput
-    - name: LinkDiscordCircleInput
     - name: UpdateProfileInput
     - name: EpochInputParams
     - name: CreateEpochInput
@@ -842,16 +807,6 @@ custom_types:
           source: default
           type: object
     - name: MarkClaimedOutput
-    - name: LinkDiscordUserResponse
-      relationships:
-        - field_mapping:
-            id: id
-          name: linkDiscordUser_DiscordUser
-          remote_table:
-            name: users
-            schema: discord
-          source: default
-          type: object
     - name: CreateSampleCircleResponse
       relationships:
         - field_mapping:
@@ -872,7 +827,6 @@ custom_types:
             schema: public
           source: default
           type: object
-    - name: LinkDiscordCircleResponse
     - name: DeleteUserBulkResponse
     - name: DeleteUsersResponse
     - name: GuildAdmin

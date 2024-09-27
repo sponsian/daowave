@@ -1,33 +1,24 @@
-import { useEffect } from 'react';
-
-import { useWalletStatus } from 'features/auth';
 import { client } from 'lib/gql/client';
 import { useQuery } from 'react-query';
-import { useNavigate } from 'react-router';
+import { useAccount } from 'wagmi';
 
-import { coLinksPaths } from '../../../routes/paths';
 import { useCoLinksNavQuery } from '../useCoLinksNavQuery';
 import { GlobalUi } from 'components/GlobalUi';
-import { useWeb3React } from 'hooks/useWeb3React';
 import { EmailBanner } from 'pages/ProfilePage/EmailSettings/EmailBanner';
 import { Flex } from 'ui';
 
 import { WizardList } from './WizardList';
 import { WizardSteps } from './WizardSteps';
+import { TOS_UPDATED_AT } from './WizardTerms';
 
 export const QUERY_KEY_COLINKS = 'coLinks';
 
 export const CoLinksWizard = () => {
   const { data } = useCoLinksNavQuery();
-  const { chainId, account } = useWeb3React();
-  const { address } = useWalletStatus();
-  const navigate = useNavigate();
-  const hasCoSoul = !!data?.profile.cosoul;
+  const { chainId, address } = useAccount();
 
-  const description = data?.profile?.description;
-
-  // TODO: rename step
-  const hasName = !!description;
+  const hasName =
+    !!data?.profile?.name && !data.profile.name.startsWith('New User');
 
   const { data: myProfile } = useQuery(
     [QUERY_KEY_COLINKS, address, 'wizard'],
@@ -47,7 +38,7 @@ export const CoLinksWizard = () => {
               id: true,
               name: true,
               avatar: true,
-              invite_code_redeemed_at: true,
+              tos_agreed_at: true,
               reputation_score: {
                 total_score: true,
               },
@@ -62,22 +53,10 @@ export const CoLinksWizard = () => {
     }
   );
 
-  const { data: checkEthDenverInvitee } = useQuery(
-    ['colink_checkEthDenverInvitee', address, 'wizard'],
-    async () => {
-      const { checkEthDenverInvitee } = await client.query(
-        {
-          checkEthDenverInvitee: { is_eth_denver_invitee: true },
-        },
-        {
-          operationName: 'coLinks_wizard',
-        }
-      );
-      return checkEthDenverInvitee;
-    }
-  );
-
   const hasRep = !!myProfile?.reputation_score?.total_score;
+  const acceptedTOS =
+    new Date(myProfile?.tos_agreed_at) >= new Date(TOS_UPDATED_AT);
+
   const { data: keyData } = useQuery(
     [QUERY_KEY_COLINKS, address, 'wizardKeys'],
     async () => {
@@ -135,25 +114,7 @@ export const CoLinksWizard = () => {
     }
   );
 
-  const readyData =
-    keyData &&
-    myProfile &&
-    data &&
-    chainId &&
-    account &&
-    address &&
-    checkEthDenverInvitee;
-
-  useEffect(() => {
-    if (data?.profile) {
-      if (
-        !data.profile.invite_code_redeemed_at
-        // !data.profile.invite_code_requested_at
-      ) {
-        navigate(coLinksPaths.wizardStart);
-      }
-    }
-  }, [data]);
+  const readyData = keyData && myProfile && data && chainId && address;
 
   return (
     <Flex css={{ flexGrow: 1, height: '100vh', width: '100vw' }}>
@@ -173,10 +134,8 @@ export const CoLinksWizard = () => {
                 address,
                 hasName,
                 hasRep,
-                hasCoSoul,
                 hasOwnKey: keyData.hasOwnKey,
-                hasOtherKey: keyData.hasOtherKey,
-                isEthDenverInvitee: checkEthDenverInvitee.is_eth_denver_invitee,
+                acceptedTOS,
               }}
               repScore={myProfile?.reputation_score?.total_score}
             />
@@ -195,9 +154,8 @@ export const CoLinksWizard = () => {
                   address,
                   hasName,
                   hasRep,
-                  hasCoSoul,
                   hasOwnKey: keyData.hasOwnKey,
-                  hasOtherKey: keyData.hasOtherKey,
+                  acceptedTOS,
                 }}
               />
             </Flex>

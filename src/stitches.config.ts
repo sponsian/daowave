@@ -75,6 +75,12 @@ export const colors = {
   coLinksTextOnCta: figmaColors.secondary1,
 
   white: figmaColors.grey1,
+  white70: 'rgba(255,255,255,0.7)',
+  white80: 'rgba(255,255,255,0.8)',
+  black20: 'rgba(0,0,0,0.2)',
+  black30: 'rgba(0,0,0,0.3)',
+  black70: 'rgba(0,0,0,0.7)',
+  black80: 'rgba(0,0,0,0.8)',
   black: figmaColors.grey10,
   link: figmaColors.secondary4,
   linkHover: figmaColors.secondary5,
@@ -104,6 +110,17 @@ export const colors = {
   borderFocusBright: figmaColors.secondary5,
   borderTable: figmaColors.grey4,
   activePanel: figmaColors.secondary1,
+
+  bullseye1a: '#6000d7',
+  bullseye1b: '#9847FF',
+  bullseye2a: '#003b1c',
+  bullseye2b: '#0CCB65',
+  bullseye3a: '#443400',
+  bullseye3b: '#EDC53A',
+  bullseye4a: '#696969',
+  bullseye4b: '#b6b6b6',
+  bullseye5a: '#cdcdcd',
+  bullseye5b: '#eeeeee',
 
   dim: figmaColors.grey1,
   dimText: figmaColors.grey4,
@@ -169,6 +186,15 @@ export const colors = {
 
   profileGradientStart: figmaColors.grey4,
   profileGradientEnd: figmaColors.grey2,
+
+  profileCardGiveGradientStart: '#0ecf87',
+  profileCardGiveGradientEnd: '#5528d6',
+  profileCardFarcasterGradientStart: '$farcaster',
+  profileCardFarcasterGradientEnd: '#9572eb',
+  profileCardCoLinksGradientStart: '#36b0e1',
+  profileCardCoLinksGradientEnd: '#dd339b',
+  profileCardPoapsGradientStart: '#ebb417',
+  profileCardPoapsGradientEnd: '#6980db',
 
   alert: figmaColors.error5,
   warning: figmaColors.orange5,
@@ -257,11 +283,12 @@ export const colors = {
   mapReceive: figmaColors.secondary2,
   mapCirculate: figmaColors.secondary5,
   mapNode: figmaColors.grey10,
-  mapGiveLink: figmaColors.success5,
+  giveGraphLink: figmaColors.grey4,
   mapReceiveLink: figmaColors.orange6,
   mapNodeFade: '#00000020',
   mapLink: '#00000015',
   mapLinkDim: '#00000008',
+  mapGiveLink: figmaColors.success5,
 
   coMarkBackground: figmaColors.primary4,
 
@@ -303,6 +330,7 @@ export const {
       full: '100%',
       smallScreen: '900px',
       mediumScreen: '1392px',
+      rightColumn: '320px',
       headerHeight: '91px',
       readable: '50em',
       ...spaces,
@@ -511,8 +539,28 @@ export const dark = createTheme({
     modalBorderColor: figmaColors.grey8,
     activePanel: figmaColors.grey8,
 
+    bullseye1a: '#4d00ac',
+    bullseye1b: '#9847FF',
+    bullseye2a: '#003b1c',
+    bullseye2b: '#00c65c',
+    bullseye3a: '#443400',
+    bullseye3b: '#e0b82e',
+    bullseye4a: '#393939',
+    bullseye4b: '#535353',
+    bullseye5a: '#1f1f1f',
+    bullseye5b: '#3d3d3d',
+
     profileGradientStart: figmaColors.grey10,
     profileGradientEnd: figmaColors.grey8,
+
+    profileCardGiveGradientStart: '#077c51',
+    profileCardGiveGradientEnd: '#2b1176',
+    profileCardFarcasterGradientStart: '$farcaster',
+    profileCardFarcasterGradientEnd: '#1f0561',
+    profileCardCoLinksGradientStart: '#0b5b87',
+    profileCardCoLinksGradientEnd: '#660c43',
+    profileCardPoapsGradientStart: '#825f00',
+    profileCardPoapsGradientEnd: '#0f005e',
 
     background: figmaColors.grey10,
     navBackground: figmaColors.grey9,
@@ -628,6 +676,7 @@ export const dark = createTheme({
     mapNodeFade: '#FFFFFF20',
     mapLink: '#FFFFFF15',
     mapLinkDim: '#FFFFFF08',
+    giveGraphLink: figmaColors.grey5,
 
     toastifyBackground: figmaColors.grey8,
     toastifyBorderColorDefault: figmaColors.grey6,
@@ -724,8 +773,28 @@ export const party = createTheme({
     modalBorderColor: figmaColors.grey8,
     activePanel: figmaColors.grey8,
 
+    bullseye1a: '#4d00ac',
+    bullseye1b: '#9847FF',
+    bullseye2a: '#003b1c',
+    bullseye2b: '#00c65c',
+    bullseye3a: '#443400',
+    bullseye3b: '#e0b82e',
+    bullseye4a: '#393939',
+    bullseye4b: '#535353',
+    bullseye5a: '#1f1f1f',
+    bullseye5b: '#3d3d3d',
+
     profileGradientStart: figmaColors.grey10,
     profileGradientEnd: figmaColors.grey8,
+
+    profileCardGiveGradientStart: '#077c51',
+    profileCardGiveGradientEnd: '#2b1176',
+    profileCardFarcasterGradientStart: '$farcaster',
+    profileCardFarcasterGradientEnd: '#1f0561',
+    profileCardCoLinksGradientStart: '#0b5b87',
+    profileCardCoLinksGradientEnd: '#660c43',
+    profileCardPoapsGradientStart: '#825f00',
+    profileCardPoapsGradientEnd: '#0f005e',
 
     background: figmaColors.grey10,
     navBackground:
@@ -736,7 +805,7 @@ export const party = createTheme({
 
     text: figmaColors.grey4,
     headingText: figmaColors.grey2,
-    secondaryText: figmaColors.grey6,
+    secondaryText: figmaColors.grey4,
 
     info: figmaColors.secondary10,
     textOnInfo: figmaColors.grey1,
@@ -842,6 +911,7 @@ export const party = createTheme({
     mapNodeFade: '#FFFFFF20',
     mapLink: '#FFFFFF15',
     mapLinkDim: '#FFFFFF08',
+    giveGraphLink: '#f583ee',
 
     toastifyBackground: figmaColors.grey8,
     toastifyBorderColorDefault: figmaColors.grey6,

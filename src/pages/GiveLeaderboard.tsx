@@ -9,7 +9,7 @@ import { anonClient } from '../lib/anongql/anonClient';
 import { coLinksPaths } from '../routes/paths';
 import { skillTextStyle } from '../stitches.config';
 import { GemCoOutline } from 'icons/__generated';
-import { Flex, Text } from 'ui';
+import { Flex, Panel, Text } from 'ui';
 
 type sortBy =
   | 'gives'
@@ -19,11 +19,7 @@ type sortBy =
   | 'gives_last_30_days'
   | 'skill';
 
-export const GiveLeaderboard = ({
-  linkFunc = coLinksPaths.giveBoardSkill,
-}: {
-  linkFunc?(skill: string): string;
-}) => {
+export const GiveLeaderboard = () => {
   const [sort, setSortRaw] = useState<sortBy>('gives');
   const [desc, setDesc] = useState<boolean>(true);
 
@@ -102,23 +98,59 @@ export const GiveLeaderboard = ({
   return (
     <>
       {/*Content*/}
-      <Flex
-        css={{
-          padding: '10px',
-          backgroundColor: 'rgb(8 18 29 / 25%)',
-          borderRadius: '$2',
-          // border: 'solid 1px #424a51',
-        }}
-      >
+      <Panel noBorder>
         {/*Table*/}
         <Flex
           css={{
             width: '100%',
             flexFlow: 'column',
             alignItems: 'flex-start',
-            color: 'white',
           }}
         >
+          <Flex
+            column
+            css={{
+              width: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              mb: '$md',
+              borderRadius: '$3',
+              background: 'linear-gradient(90deg, $complete 25%, $cta 80%)',
+              p: '$md',
+              color: '$textOnCta',
+              gap: '$xs',
+            }}
+          >
+            <Flex
+              css={{
+                alignItems: 'center',
+                gap: '$xs',
+                pb: '$sm',
+                borderBottom: '1px solid $black20',
+              }}
+            >
+              <GemCoOutline fa size="xl" />
+              <Text
+                h2
+                display
+                css={{
+                  color: '$textOnCta',
+                }}
+              >
+                GIVE
+              </Text>
+            </Flex>
+            <Text
+              size="small"
+              css={{
+                mt: '$xs',
+                height: 'auto',
+                color: '$textOnCta',
+              }}
+            >
+              Leaderboard
+            </Text>
+          </Flex>
           <GiveLeaderboardRow rotateHeader header={true}>
             <GiveLeaderboardColumn
               onClick={() => setSort('rank')}
@@ -172,7 +204,7 @@ export const GiveLeaderboard = ({
                 >
                   <Text
                     as={NavLink}
-                    to={linkFunc(skill.skill)}
+                    to={coLinksPaths.giveSkill(skill.skill)}
                     tag
                     size="small"
                     css={{
@@ -187,7 +219,7 @@ export const GiveLeaderboard = ({
                       },
                     }}
                   >
-                    <GemCoOutline fa size={'md'} css={{ color: '$text' }} />
+                    <GemCoOutline fa size={'md'} css={{ color: '$white' }} />
                     <Text css={{ ...skillTextStyle }}>{skill.skill}</Text>
                   </Text>
                 </GiveLeaderboardColumn>
@@ -204,7 +236,7 @@ export const GiveLeaderboard = ({
               </GiveLeaderboardRow>
             ))}
         </Flex>
-      </Flex>
+      </Panel>
     </>
   );
 };
@@ -237,8 +269,7 @@ export const GiveLeaderboardRow = ({
               fontWeight: '700',
               borderRadius: '$2',
               zIndex: 2,
-              background:
-                'radial-gradient(circle at 25% 0%, rgb(48 21 128) 20%, rgb(79 5 65) 100%)',
+              background: '$surfaceNested',
               minHeight: '50px',
               '@xs': {
                 fontSize: '$xs',
@@ -277,7 +308,7 @@ export const GiveLeaderboardColumn = ({
         flex: 2,
         padding: '8px',
         display: 'flex',
-        color: 'white',
+        color: '$text',
         alignItems: 'center',
         overflow: 'hidden',
         '@lg': {
